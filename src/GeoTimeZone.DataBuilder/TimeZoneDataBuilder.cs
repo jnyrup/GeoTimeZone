@@ -24,7 +24,7 @@ public static class TimeZoneDataBuilder
 
         using var fileStream = File.Create(path);
         using var compressedStream = new GZipStream(fileStream, CompressionMode.Compress);
-        using var writer = new StreamWriter(compressedStream) {NewLine = "\n"};
+        using var writer = new StreamWriter(compressedStream) { NewLine = "\n" };
 
         var timeZones = TimeZones.Values.OrderBy(x => x.LineNumber);
         foreach (var timeZone in timeZones)
@@ -45,7 +45,7 @@ public static class TimeZoneDataBuilder
 
         using var fileStream = File.Create(path);
         using var compressedStream = new GZipStream(fileStream, CompressionMode.Compress);
-        using var writer = new StreamWriter(compressedStream) {NewLine = "\n"};
+        using var writer = new StreamWriter(compressedStream);
         WriteTreeNode(writer, WorldBoundsTreeNode);
     }
 
@@ -53,7 +53,7 @@ public static class TimeZoneDataBuilder
     {
         var h = geohash.PadRight(GeohashTree.Precision, '-');
         var p = TimeZones[tz].LineNumber.ToString("D3");
-        writer.WriteLine(h + p);
+        writer.Write(h + p);
     }
 
     private static void WriteTreeNode(TextWriter writer, TimeZoneTreeNode node, string geohash = "")
@@ -100,7 +100,7 @@ public static class TimeZoneDataBuilder
         // Test a set of evenly distributed points within the envelope.
         var points = GetTestPoints(node.Envelope);
         var hits = points.Count(p => preparedGeometry.Contains(p));
-        return (double) hits / points.Length;
+        return (double)hits / points.Length;
 
         // Here's how we can do it with area, but it's very slow.
         // return feature.Geometry.Intersection(nodeGeometry).Area / node.Envelope.Area;
@@ -163,7 +163,7 @@ public static class TimeZoneDataBuilder
                         new TimeZoneFeature(x.TimeZoneName, geometry, index));
                 }
 
-                return new[] {x};
+                return new[] { x };
             })
             .Where(x => x.Geometry.Area > 0)
             .OrderBy(x => x.TimeZoneName).ThenBy(x => x.MultiPolyIndex)
