@@ -1,4 +1,5 @@
 using System.IO.Compression;
+using System.Text;
 using NetTopologySuite.Geometries;
 
 namespace GeoTimeZone.DataBuilder;
@@ -45,15 +46,18 @@ public static class TimeZoneDataBuilder
 
         using var fileStream = File.Create(path);
         using var compressedStream = new GZipStream(fileStream, CompressionMode.Compress);
-        using var writer = new StreamWriter(compressedStream);
+        using var writer = new StreamWriter(compressedStream, Encoding.ASCII);
         WriteTreeNode(writer, WorldBoundsTreeNode);
     }
 
     private static void WriteGeohash(TextWriter writer, string tz, string geohash)
     {
         var h = geohash.PadRight(GeohashTree.Precision, '-');
-        var p = TimeZones[tz].LineNumber.ToString("D3");
-        writer.Write(h + p);
+        var p = TimeZones[tz].LineNumber;
+
+        writer.Write(h);
+        writer.Write((char)(p >> 7));
+        writer.Write((char)(p & 0x7F));
     }
 
     private static void WriteTreeNode(TextWriter writer, TimeZoneTreeNode node, string geohash = "")

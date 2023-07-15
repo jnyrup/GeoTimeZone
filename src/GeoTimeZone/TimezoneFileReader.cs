@@ -4,7 +4,8 @@ namespace GeoTimeZone;
 
 internal static class TimezoneFileReader
 {
-    private const int LineLength = 8;
+    private const int LineNumberLength = 2;
+    private const int LineLength = Geohash.Precision + LineNumberLength;
 
     private static readonly Lazy<MemoryStream> LazyData = new(LoadData);
     private static readonly Lazy<int> LazyCount = new(GetCount);
@@ -33,11 +34,9 @@ internal static class TimezoneFileReader
 
     public static int GetLineNumber(int line)
     {
-        var digits = GetLine(line, Geohash.Precision, LineLength - Geohash.Precision);
-        return GetDigit(digits[2]) + ((GetDigit(digits[1]) + (GetDigit(digits[0]) * 10)) * 10);
+        var digits = GetLine(line, Geohash.Precision, LineNumberLength);
+        return digits[1] | (digits[0] << 7);
     }
-
-    private static int GetDigit(byte b) => b - '0';
 
 #if NET6_0_OR_GREATER || NETSTANDARD2_1
     private static ReadOnlySpan<byte> GetLine(int line, int start, int count)
